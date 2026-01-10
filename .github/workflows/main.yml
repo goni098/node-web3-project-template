@@ -1,0 +1,68 @@
+name: deploy-on-vm
+
+on:
+    push:
+        branches:
+            - dev
+
+jobs:
+    check:
+        runs-on: ubuntu-22.04
+        strategy:
+            matrix:
+                node-version: [22]
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v6
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: "pnpm"
+
+            - name: Install dependencies
+              run: pnpm install
+
+            - name: Gen code
+              run: pnpm run db:gen
+
+            - name: Check lint
+              run: pnpm run lint
+
+            - name: Check type
+              run: pnpm run type-check
+
+    deploy:
+        runs-on: ubuntu-22.04
+        needs: check
+
+        steps:
+            - uses: actions/checkout@v6
+
+            # Setup SSH key
+            - name: Setup SSH
+              run: |
+                  mkdir -p ~/.ssh
+                  echo "${{ secrets.VM_KEY }}" > ~/.ssh/id_ed25519
+                  chmod 600 ~/.ssh/id_ed25519
+                  ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+
+            # Deploy via tar stream
+            - name: Deploy to VM
+              run: |
+                  tar -czf - \
+                    src \
+                    package.json \
+                    pnpm-lock.yaml \
+                    ecosystem.config.cjs \
+                    prisma.config.ts \
+                    tsconfig.json \
+                    .swcrc \
+                    exe.sh \
+                    | ssh -i ~/.ssh/id_ed25519 ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} \
+                    "mkdir -p ~/multiburn && tar -xzf - -C ~/multiburn && cd ~/multiburn && ./exe.sh"

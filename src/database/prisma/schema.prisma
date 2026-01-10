@@ -1,0 +1,46 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+  runtime  = "nodejs"
+}
+
+model User {
+  address   String   @id @db.VarChar(44)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  role      Role
+
+  @@map("user")
+}
+
+model SigningMessage {
+  address String @id @db.VarChar(44)
+  message String @db.VarChar(98)
+
+  @@map("signing_message")
+}
+
+model Setting {
+  key   String @id @db.VarChar
+  value String @db.VarChar
+
+  @@map("setting")
+}
+
+model Signature {
+  sig String @id @db.VarChar
+  ts  BigInt
+
+  @@map("signature")
+}
+
+enum Role {
+  normal
+  admin
+  project_owner
+
+  @@map("role")
+}

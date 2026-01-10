@@ -1,0 +1,28 @@
+{
+	"$schema": "https://swc.rs/schema.json",
+	"jsc": {
+		"baseUrl": "./",
+		"paths": {
+			"@database/*": ["src/database/*"],
+			"@evm-scanner/*": ["src/evm-scanner/*"],
+			"@evm-stream/*": ["src/evm-stream/*"],
+			"@http-server/*": ["src/http-server/*"],
+			"@shared/*": ["src/shared/*"],
+			"@sol-scanner/*": ["src/solana-scanner/*"],
+			"@sol-stream/*": ["src/solana-stream/*"]
+		},
+		"parser": {
+			"syntax": "typescript",
+			"tsx": false,
+			"dynamicImport": false,
+			"decorators": false
+		},
+		"target": "esnext"
+	},
+	"module": {
+		"type": "nodenext",
+		"resolveFully": true
+	},
+	"sourceMaps": true,
+	"minify": false
+}

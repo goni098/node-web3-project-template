@@ -1,0 +1,42 @@
+{
+	"compilerOptions": {
+		"lib": ["ESNext"],
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "node",
+
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
+		"useDefineForClassFields": true,
+
+		"sourceMap": true,
+
+		"baseUrl": "./",
+		"outDir": "dist",
+		"paths": {
+			"@database/*": ["src/database/*"],
+			"@evm-scanner/*": ["src/evm-scanner/*"],
+			"@evm-stream/*": ["src/evm-stream/*"],
+			"@http-server/*": ["src/http-server/*"],
+			"@shared/*": ["src/shared/*"],
+			"@sol-scanner/*": ["src/solana-scanner/*"],
+			"@sol-stream/*": ["src/solana-stream/*"]
+		},
+
+		"strict": true,
+		"skipLibCheck": true,
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"strictFunctionTypes": true,
+		"noFallthroughCasesInSwitch": true,
+		"allowUnreachableCode": false,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+
+		"noUnusedLocals": true,
+		"noUnusedParameters": true
+	},
+	"include": ["src/**/*.ts", "test/**/*.ts"],
+	"exclude": ["node_modules", "dist"]
+}
