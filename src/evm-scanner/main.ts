@@ -1,14 +1,15 @@
 import { settingRepository } from "@database/repository/setting"
 import { evmClient } from "@shared/evm/client"
+import { UNISWAP_POOL_V2_EVENT_SIGNATURES } from "@shared/evm/uniswapv2/event"
+import { UNISWAP_POOL_V3_EVENT_SIGNATURES } from "@shared/evm/uniswapv3/event"
 import { minOf, sleep } from "@shared/util"
-import { erc20Abi } from "viem"
 import { BLOCK_RANGE, EVM_SCAN_CURSOR_SETTING, SCAN_INTERVAL_MS } from "./config"
 import { loadOrInitBlock } from "./cursor"
 
 const main = async () => {
 	let fromBlock = await loadOrInitBlock()
 
-	console.log("starting scanner from block ", fromBlock)
+	console.log("starting scanner from block", fromBlock)
 
 	for (;;) {
 		try {
@@ -34,21 +35,21 @@ const scan = async (fromBlock: bigint) => {
 		return fromBlock
 	}
 
-	const events = await evmClient.getContractEvents({
-		address: ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
+	const events = await evmClient.getLogs({
+		address: [
+			"0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8", // v3 weth/usdc
+			"0xb4e16d0168e52d35cacd2c6185b44281ec28c9dc" // v2 weth/usdc
+		],
 		fromBlock,
 		toBlock,
-		eventName: "Approval",
-		abi: erc20Abi
+		events: [...UNISWAP_POOL_V2_EVENT_SIGNATURES, ...UNISWAP_POOL_V3_EVENT_SIGNATURES]
 	})
-
-	console.log("events: ", events.length)
 
 	const next = toBlock + 1n
 
 	await settingRepository.set(EVM_SCAN_CURSOR_SETTING, next.toString())
 
-	console.log(`scanned from ${fromBlock} to ${toBlock} successfully`)
+	console.log(`scanned from ${fromBlock} to ${toBlock} successfully, found ${events.length} logs `)
 
 	return next
 }
