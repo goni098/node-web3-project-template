@@ -1,7 +1,6 @@
-import { prisma } from "@database/connection"
 import { solClient } from "@shared/solana/client"
 import { sleep } from "@shared/util"
-// import { parseLogs } from "@sol-stream/log-parser"
+import { parseLogs } from "@sol-stream/log-parser"
 import type { GetSignaturesForAddressApi } from "@solana/kit"
 import {
 	CONCURRENCY_SIGNATURE,
@@ -47,11 +46,7 @@ const handleTx = async (tx: Tx) => {
 
 	if (!logs) return
 
-	// const events = parseLogs(logs)
+	const events = parseLogs(logs)
 
-	await prisma.signature.upsert({
-		where: { sig: signature },
-		create: { sig: signature, ts },
-		update: {}
-	})
+	ts && events
 }

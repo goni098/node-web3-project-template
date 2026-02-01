@@ -12,13 +12,13 @@
  */
 
 import * as runtime from "@prisma/client/runtime/client"
-import type * as Prisma from "./prismaNamespace"
+import type * as Prisma from "./prismaNamespace.js"
 
 
 const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [],
-  "clientVersion": "7.2.0",
-  "engineVersion": "0c8ef2ce45c83248ab3df073180d5eda9e8be7a3",
+  "clientVersion": "7.3.0",
+  "engineVersion": "9d6ad21cbbceab97458517b147a6a09ff43aa735",
   "activeProvider": "postgresql",
   "inlineSchema": "datasource db {\n  provider = \"postgresql\"\n}\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../generated/prisma\"\n  runtime  = \"nodejs\"\n}\n\nmodel User {\n  address   String   @id @db.VarChar(44)\n  createdAt DateTime @default(now()) @map(\"created_at\") @db.Timestamptz(3)\n  role      Role\n\n  @@map(\"user\")\n}\n\nmodel SigningMessage {\n  address String @id @db.VarChar(44)\n  message String @db.VarChar(98)\n\n  @@map(\"signing_message\")\n}\n\nmodel Setting {\n  key   String @id @db.VarChar\n  value String @db.VarChar\n\n  @@map(\"setting\")\n}\n\nmodel Signature {\n  sig String @id @db.VarChar\n  ts  BigInt\n\n  @@map(\"signature\")\n}\n\nenum Role {\n  normal\n  admin\n  project_owner\n\n  @@map(\"role\")\n}\n",
   "runtimeDataModel": {
@@ -37,12 +37,14 @@ async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Modul
 }
 
 config.compilerWasm = {
-  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_bg.postgresql.mjs"),
+  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.mjs"),
 
   getQueryCompilerWasmModule: async () => {
-    const { wasm } = await import("@prisma/client/runtime/query_compiler_bg.postgresql.wasm-base64.mjs")
+    const { wasm } = await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.wasm-base64.mjs")
     return await decodeBase64AsWasm(wasm)
-  }
+  },
+
+  importName: "./query_compiler_fast_bg.js"
 }
 
 

@@ -8,6 +8,8 @@ import { loadOrInitBlock } from "./cursor"
 const main = async () => {
 	let fromBlock = await loadOrInitBlock()
 
+	console.log("starting scanner from block ", fromBlock)
+
 	for (;;) {
 		try {
 			fromBlock = await scan(fromBlock)
@@ -33,17 +35,20 @@ const scan = async (fromBlock: bigint) => {
 	}
 
 	const events = await evmClient.getContractEvents({
-		address: [],
+		address: ["0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"],
 		fromBlock,
 		toBlock,
+		eventName: "Approval",
 		abi: erc20Abi
 	})
 
-	console.log("events: ", events)
+	console.log("events: ", events.length)
 
-	const next = latestBlock + 1n
+	const next = toBlock + 1n
 
 	await settingRepository.set(EVM_SCAN_CURSOR_SETTING, next.toString())
+
+	console.log(`scanned from ${fromBlock} to ${toBlock} successfully`)
 
 	return next
 }
