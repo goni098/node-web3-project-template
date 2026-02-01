@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto"
-import { getPositionOpenedDecoder, getPositionSettledDecoder } from "@shared/solana/multiburn"
+import { getPositionOpenedDecoder, getPositionSettledDecoder } from "@shared/solana/bo"
 import { isNil, stripPrefix } from "@shared/util"
 import { LOG_DISCRIMINATOR_SIZE } from "./config"
 

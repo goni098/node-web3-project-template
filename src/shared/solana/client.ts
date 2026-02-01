@@ -1,14 +1,74 @@
+import { SOLANA_RPC, SOLANA_WS_RPC } from "@shared/env"
 import {
+	appendTransactionMessageInstruction,
+	assertIsSendableTransaction,
+	assertIsTransactionWithBlockhashLifetime,
 	createSolanaRpc,
 	createSolanaRpcSubscriptions,
-	sendAndConfirmTransactionFactory
+	createTransactionMessage,
+	getSignatureFromTransaction,
+	type Instruction,
+	type KeyPairSigner,
+	pipe,
+	sendAndConfirmTransactionFactory,
+	setTransactionMessageFeePayerSigner,
+	setTransactionMessageLifetimeUsingBlockhash,
+	signTransactionMessageWithSigners
 } from "@solana/kit"
+import {
+	estimateComputeUnitLimitFactory,
+	getSetComputeUnitLimitInstruction,
+	getSetComputeUnitPriceInstruction
+} from "@solana-program/compute-budget"
 
-export const solClient = createSolanaRpc("https://api.devnet.solana.com")
+export const solClient = createSolanaRpc(SOLANA_RPC)
 
-export const solSubscriptions = createSolanaRpcSubscriptions("wss://api.devnet.solana.com")
+export const solWsClient = createSolanaRpcSubscriptions(SOLANA_WS_RPC)
 
-export const sendAndConfirmTransaction = sendAndConfirmTransactionFactory({
+export const buildAndSendTransaction = async (
+	signer: KeyPairSigner<string>,
+	instructions: Instruction[]
+) => {
+	const message = await buildMessage(signer, instructions)
+	const transaction = await signTransactionMessageWithSigners(message)
+
+	assertIsTransactionWithBlockhashLifetime(transaction)
+	assertIsSendableTransaction(transaction)
+
+	await sendAndConfirmTransaction(transaction, { commitment: "confirmed" })
+
+	return getSignatureFromTransaction(transaction)
+}
+
+const sendAndConfirmTransaction = sendAndConfirmTransactionFactory({
 	rpc: solClient,
-	rpcSubscriptions: solSubscriptions
+	rpcSubscriptions: solWsClient
 })
+
+const buildMessage = async (signer: KeyPairSigner<string>, instructions: Instruction[]) => {
+	const latestBlockhash = await solClient.getLatestBlockhash().send()
+
+	return pipe(
+		createTransactionMessage({ version: 0 }),
+		msg => setTransactionMessageFeePayerSigner(signer, msg),
+		msg => setTransactionMessageLifetimeUsingBlockhash(latestBlockhash.value, msg),
+		msg =>
+			appendTransactionMessageInstruction(
+				getSetComputeUnitPriceInstruction({ microLamports: 100_000 }),
+				msg
+			),
+		msg =>
+			instructions.reduce(
+				// biome-ignore lint/suspicious/noExplicitAny: <it's ok>
+				(message, ix) => appendTransactionMessageInstruction(ix, message) as any,
+				msg
+			),
+		async msg =>
+			appendTransactionMessageInstruction(
+				getSetComputeUnitLimitInstruction({
+					units: await estimateComputeUnitLimitFactory({ rpc: solClient })(msg)
+				}),
+				msg
+			)
+	)
+}

@@ -8,29 +8,49 @@
 
 import {
 	type Address,
+	assertIsInstructionWithAccounts,
 	containsBytes,
 	fixEncoderSize,
 	getBytesEncoder,
+	type Instruction,
+	type InstructionWithData,
 	type ReadonlyUint8Array
 } from "@solana/kit"
-import type {
-	ParsedAcceptOwnershipInstruction,
-	ParsedFundPoolInstruction,
-	ParsedInitializeInstruction,
-	ParsedInitializeMarketInstruction,
-	ParsedInitializePoolInstruction,
-	ParsedInitializeVaultInstruction,
-	ParsedOpenPositionInstruction,
-	ParsedPauseMarketInstruction,
-	ParsedResetIvInstruction,
-	ParsedResetMarketIvInstruction,
-	ParsedSettleMultiplePositionsInstruction,
-	ParsedSettlePositionInstruction,
-	ParsedTransferMarketOperatorInstruction,
-	ParsedTransferOwnershipInstruction,
-	ParsedUpdateMarketConfigInstruction,
-	ParsedWithdrawPoolInstruction,
-	ParsedWithdrawVaultInstruction
+import {
+	type ParsedAcceptOwnershipInstruction,
+	type ParsedFundPoolInstruction,
+	type ParsedInitializeInstruction,
+	type ParsedInitializeMarketInstruction,
+	type ParsedInitializePoolInstruction,
+	type ParsedInitializeVaultInstruction,
+	type ParsedOpenPositionInstruction,
+	type ParsedPauseMarketInstruction,
+	type ParsedResetIvInstruction,
+	type ParsedResetMarketIvInstruction,
+	type ParsedSettleMultiplePositionsInstruction,
+	type ParsedSettlePositionInstruction,
+	type ParsedTransferMarketOperatorInstruction,
+	type ParsedTransferOwnershipInstruction,
+	type ParsedUpdateMarketConfigInstruction,
+	type ParsedWithdrawPoolInstruction,
+	type ParsedWithdrawVaultInstruction,
+	parseAcceptOwnershipInstruction,
+	parseFundPoolInstruction,
+	parseInitializeInstruction,
+	parseInitializeMarketInstruction,
+	parseInitializePoolInstruction,
+	parseInitializeVaultInstruction,
+	parseOpenPositionInstruction,
+	parsePauseMarketInstruction,
+	parseResetIvInstruction,
+	parseResetMarketIvInstruction,
+	parseSettleMultiplePositionsInstruction,
+	parseSettlePositionInstruction,
+	parseTransferMarketOperatorInstruction,
+	parseTransferOwnershipInstruction,
+	parseUpdateMarketConfigInstruction,
+	parseWithdrawPoolInstruction,
+	parseWithdrawVaultInstruction
 } from "../instructions"
 
 export const BO_SC_PROGRAM_ADDRESS =
@@ -374,3 +394,132 @@ export type ParsedBoScInstruction<
 	| ({
 			instructionType: BoScInstruction.WithdrawVault
 	  } & ParsedWithdrawVaultInstruction<TProgram>)
+
+export function parseBoScInstruction<TProgram extends string>(
+	instruction: Instruction<TProgram> & InstructionWithData<ReadonlyUint8Array>
+): ParsedBoScInstruction<TProgram> {
+	const instructionType = identifyBoScInstruction(instruction)
+	switch (instructionType) {
+		case BoScInstruction.AcceptOwnership: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.AcceptOwnership,
+				...parseAcceptOwnershipInstruction(instruction)
+			}
+		}
+		case BoScInstruction.FundPool: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.FundPool,
+				...parseFundPoolInstruction(instruction)
+			}
+		}
+		case BoScInstruction.Initialize: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.Initialize,
+				...parseInitializeInstruction(instruction)
+			}
+		}
+		case BoScInstruction.InitializeMarket: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.InitializeMarket,
+				...parseInitializeMarketInstruction(instruction)
+			}
+		}
+		case BoScInstruction.InitializePool: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.InitializePool,
+				...parseInitializePoolInstruction(instruction)
+			}
+		}
+		case BoScInstruction.InitializeVault: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.InitializeVault,
+				...parseInitializeVaultInstruction(instruction)
+			}
+		}
+		case BoScInstruction.OpenPosition: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.OpenPosition,
+				...parseOpenPositionInstruction(instruction)
+			}
+		}
+		case BoScInstruction.PauseMarket: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.PauseMarket,
+				...parsePauseMarketInstruction(instruction)
+			}
+		}
+		case BoScInstruction.ResetIv: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.ResetIv,
+				...parseResetIvInstruction(instruction)
+			}
+		}
+		case BoScInstruction.ResetMarketIv: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.ResetMarketIv,
+				...parseResetMarketIvInstruction(instruction)
+			}
+		}
+		case BoScInstruction.SettleMultiplePositions: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.SettleMultiplePositions,
+				...parseSettleMultiplePositionsInstruction(instruction)
+			}
+		}
+		case BoScInstruction.SettlePosition: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.SettlePosition,
+				...parseSettlePositionInstruction(instruction)
+			}
+		}
+		case BoScInstruction.TransferMarketOperator: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.TransferMarketOperator,
+				...parseTransferMarketOperatorInstruction(instruction)
+			}
+		}
+		case BoScInstruction.TransferOwnership: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.TransferOwnership,
+				...parseTransferOwnershipInstruction(instruction)
+			}
+		}
+		case BoScInstruction.UpdateMarketConfig: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.UpdateMarketConfig,
+				...parseUpdateMarketConfigInstruction(instruction)
+			}
+		}
+		case BoScInstruction.WithdrawPool: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.WithdrawPool,
+				...parseWithdrawPoolInstruction(instruction)
+			}
+		}
+		case BoScInstruction.WithdrawVault: {
+			assertIsInstructionWithAccounts(instruction)
+			return {
+				instructionType: BoScInstruction.WithdrawVault,
+				...parseWithdrawVaultInstruction(instruction)
+			}
+		}
+		default:
+			throw new Error(`Unrecognized instruction type: ${instructionType as string}`)
+	}
+}

@@ -9,3 +9,5 @@ export const BLOCK_RANGE = (() => {
 })()
 
 export const EVM_SCAN_CURSOR_SETTING = availableSetting.evmBlockScannerCursor(CHAIN_ID)
+
+export const SCAN_INTERVAL_MS = 6_000

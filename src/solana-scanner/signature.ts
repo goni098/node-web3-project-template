@@ -1,5 +1,5 @@
+import { BO_SC_PROGRAM_ADDRESS } from "@shared/solana/bo/index"
 import { solClient } from "@shared/solana/client"
-import { BO_SC_PROGRAM_ADDRESS } from "@shared/solana/multiburn/index"
 import { isEmpty, lastOf } from "@shared/util"
 import type { Signature } from "@solana/kit"
 import { SCAN_COMMITMENT as commitment } from "./config"

@@ -2,7 +2,7 @@ import { settingRepository } from "@database/repository/setting"
 import { evmClient } from "@shared/evm/client"
 import { minOf, sleep } from "@shared/util"
 import { erc20Abi } from "viem"
-import { BLOCK_RANGE, EVM_SCAN_CURSOR_SETTING } from "./config"
+import { BLOCK_RANGE, EVM_SCAN_CURSOR_SETTING, SCAN_INTERVAL_MS } from "./config"
 import { loadOrInitBlock } from "./cursor"
 
 const main = async () => {
@@ -11,7 +11,7 @@ const main = async () => {
 	for (;;) {
 		try {
 			fromBlock = await scan(fromBlock)
-			await sleep(10_000)
+			await sleep(SCAN_INTERVAL_MS)
 		} catch (error) {
 			console.error(`Scan error from block ${fromBlock.toString()}\n`, error)
 			await sleep(3000)
@@ -22,7 +22,15 @@ const main = async () => {
 const scan = async (fromBlock: bigint) => {
 	const latestBlock = await evmClient.getBlock().then(({ number }) => number)
 
-	const toBlock = minOf(latestBlock - BigInt(2), fromBlock + BLOCK_RANGE)
+	if (fromBlock > latestBlock) {
+		return fromBlock
+	}
+
+	const toBlock = minOf(latestBlock - 2n, fromBlock + BLOCK_RANGE)
+
+	if (toBlock < fromBlock) {
+		return fromBlock
+	}
 
 	const events = await evmClient.getContractEvents({
 		address: [],
@@ -33,9 +41,11 @@ const scan = async (fromBlock: bigint) => {
 
 	console.log("events: ", events)
 
-	await settingRepository.set(EVM_SCAN_CURSOR_SETTING, toBlock.toString())
+	const next = latestBlock + 1n
 
-	return latestBlock + BigInt(1)
+	await settingRepository.set(EVM_SCAN_CURSOR_SETTING, next.toString())
+
+	return next
 }
 
 main()

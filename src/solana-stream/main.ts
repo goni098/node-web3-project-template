@@ -1,5 +1,5 @@
-import { solSubscriptions } from "@shared/solana/client"
-import { BO_SC_PROGRAM_ADDRESS } from "@shared/solana/multiburn"
+import { BO_SC_PROGRAM_ADDRESS } from "@shared/solana/bo"
+import { solWsClient } from "@shared/solana/client"
 import { SCAN_COMMITMENT } from "@sol-scanner/config"
 import { parseLogs } from "./log-parser"
 
@@ -8,7 +8,7 @@ const main = async () => {
 		const controller = new AbortController()
 
 		try {
-			const stream = await solSubscriptions
+			const stream = await solWsClient
 				.logsNotifications({ mentions: [BO_SC_PROGRAM_ADDRESS] }, { commitment: SCAN_COMMITMENT })
 				.subscribe({ abortSignal: controller.signal })
 

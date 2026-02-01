@@ -1,5 +1,5 @@
 import { settingRepository } from "@database/repository/setting"
-import { BO_SC_PROGRAM_ADDRESS } from "@shared/solana/multiburn"
+import { BO_SC_PROGRAM_ADDRESS } from "@shared/solana/bo"
 import { firstOf, sleep } from "@shared/util"
 import type { Signature } from "@solana/kit"
 import { SCAN_INTERVAL_MS, SOLANA_SCAN_CURSOR_SETTING } from "./config"

@@ -1,10 +1,10 @@
 {
-	"idl": "src/shared/solana/idl/multiburn.json",
+	"idl": "src/shared/solana/idl/bo.json",
 	"before": [],
 	"scripts": {
 		"js": {
 			"from": "@codama/renderers-js",
-			"args": ["src/shared/solana/multiburn"]
+			"args": ["src/shared/solana/bo"]
 		}
 	}
 }
